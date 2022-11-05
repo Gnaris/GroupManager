@@ -1,0 +1,8 @@
+name: SP_GroupManager
+version: '1'
+main: SPGroupManager.SPGroupManager
+api-version: 1.19
+authors: [ Gnaris ]
+depend: [SP_Database]
+commands:
+  spgroup:
