@@ -1,8 +1,8 @@
 package sperias.group.Event;
 
 import sperias.group.Entity.Group.Rank;
-import sperias.group.Controller.C_Group;
 import sperias.group.Entity.Group.Grade;
+import sperias.group.Model.GroupModel;
 import sperias.group.Model.Thread.UpdatePlayerGradeThread;
 import sperias.group.Model.Thread.UpdatePlayerRankThread;
 import SPGroupManager.SPGroupManager;
@@ -19,13 +19,14 @@ import java.sql.SQLException;
 
 public class E_GroupManager implements Listener {
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler (priority = EventPriority.HIGH)
     public void onJoin(PlayerJoinEvent e) throws SQLException, ClassNotFoundException {
-        C_Group CGroup = new C_Group(e.getPlayer());
-        CGroup.insertPlayerGroupList();
+        GroupModel groupModel = new GroupModel(e.getPlayer());
+        SPGroupManager.getInstance().getGroupStore().getPlayerGroupList().put(e.getPlayer().getUniqueId(), groupModel.getPlayerGroup());
+        SPGroupManager.getInstance().getGroupStore().getPlayerGroupList().get(e.getPlayer().getUniqueId()).initializePlayerPermission(true);
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler (priority = EventPriority.HIGH)
     public void onQuit(PlayerQuitEvent e){
         Thread UpdatePlayerGradeThread = new Thread(new UpdatePlayerGradeThread(e.getPlayer()));
         UpdatePlayerGradeThread.start();

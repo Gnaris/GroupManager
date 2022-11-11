@@ -9,7 +9,7 @@ public abstract class Group {
     protected String name;
     protected String prefix;
     protected String color;
-    protected List<Permission> PermissionList = new ArrayList<>();
+    protected List<String> PermissionList = new ArrayList<>();
 
     public Group(int id, String name, String prefix, String color) {
         this.id = id;
@@ -30,7 +30,7 @@ public abstract class Group {
         return prefix;
     }
 
-    public List<Permission> getPermissionList() {
+    public List<String> getPermissionList() {
         return PermissionList;
     }
 
