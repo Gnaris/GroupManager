@@ -6,3 +6,6 @@ authors: [ Gnaris ]
 depend: [SP_Database]
 commands:
   spgroup:
+permissions:
+  sperias.group.command.spgroup:
+    description: "Manage group"

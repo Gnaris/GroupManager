@@ -10,31 +10,22 @@ import org.bukkit.entity.Player;
 public class PlayerGroup {
 
     private Player player;
-    private int playerID;
     private Grade grade;
     private Rank rank;
 
-    public PlayerGroup(Player player, int PlayerID, Grade grade, Rank aRank) {
+    private final SPGroupManager plugin;
+
+    public PlayerGroup(Player player, Grade grade, Rank rank, SPGroupManager plugin) {
         this.player = player;
-        this.playerID = PlayerID;
         this.grade = grade;
-        this.rank = aRank;
+        this.rank = rank;
+        this.plugin = plugin;
     }
 
     public void initializePlayerPermission(boolean value)
     {
-        SPGroupManager.getInstance().getGroupStore().getPlayerGroupList().get(player.getUniqueId()).getRank().getPermissionList()
-                .forEach(permission -> player.addAttachment(SPGroupManager.getInstance()).setPermission(permission, value));
-        SPGroupManager.getInstance().getGroupStore().getPlayerGroupList().get(player.getUniqueId()).getGrade().getPermissionList()
-                .forEach(permission -> player.addAttachment(SPGroupManager.getInstance()).setPermission(permission, value));
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public int getPlayerID() {
-        return playerID;
+        grade.getPermissionList().forEach(permission -> player.addAttachment(plugin).setPermission(permission, value));
+        rank.getPermissionList().forEach(permission -> player.addAttachment(plugin).setPermission(permission, value));
     }
 
     public Grade getGrade() {
@@ -49,15 +40,13 @@ public class PlayerGroup {
         this.initializePlayerPermission(false);
         this.grade = grade;
         this.initializePlayerPermission(true);
-        Thread updatePlayerGradeThread = new Thread(new UpdatePlayerGradeThread(this.player));
-        updatePlayerGradeThread.start();
+        new Thread(new UpdatePlayerGradeThread(player, plugin)).start();
     }
 
     public void setRank(Rank Rank) {
         this.initializePlayerPermission(false);
         this.rank = Rank;
         this.initializePlayerPermission(true);
-        Thread updatePlayerRankThread = new Thread(new UpdatePlayerRankThread(this.player));
-        updatePlayerRankThread.start();
+        new Thread(new UpdatePlayerRankThread(player, plugin)).start();
     }
 }

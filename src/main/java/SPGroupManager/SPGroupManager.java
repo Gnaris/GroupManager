@@ -1,72 +1,92 @@
 package SPGroupManager;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import sperias.group.Command.Cmd_Group;
+import sperias.group.Entity.Group.Grade;
+import sperias.group.Entity.Group.Rank;
 import sperias.group.Entity.PlayerGroup;
 import sperias.group.Event.E_GroupManager;
 import sperias.group.Model.GroupModel;
-import sperias.group.GroupStore.GroupStore;
-import org.bukkit.plugin.java.JavaPlugin;
-import sperias.gnaris.SPDatabase.SPDatabase;
 
-import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 
 public final class SPGroupManager extends JavaPlugin {
 
-    private final SPDatabase SPDatabase = (SPDatabase) getServer().getPluginManager().getPlugin("SP_Database");
-
-    private GroupStore groupStore;
-
-    private static SPGroupManager INSTANCE;
+    private Map<Integer, Grade> gradeList;
+    private Map<Integer, Rank> rankList;
+    private final Map<UUID, PlayerGroup> playerGroupList = new HashMap<>();
 
     @Override
     public void onEnable() {
-        INSTANCE = this;
 
-        Objects.requireNonNull(getCommand("spgroup")).setExecutor(new Cmd_Group());
+        Objects.requireNonNull(getCommand("spgroup")).setExecutor(new Cmd_Group(this));
 
-        getServer().getPluginManager().registerEvents(new E_GroupManager(), this);
+        getServer().getPluginManager().registerEvents(new E_GroupManager(this), this);
 
+
+        GroupModel groupModel = new GroupModel(this);
         try {
-            this.groupStore = new GroupStore(GroupModel.GET_ALL_GRADE(), GroupModel.GET_ALL_RANK());
-            GroupModel.GET_ALL_GRADE_PERMISSION().forEach(permission -> groupStore.getGradeList().get(permission.getGroupID()).getPermissionList().add(permission.getName()));
-            GroupModel.GET_ALL_RANK_PERMISSION().forEach(permission -> groupStore.getRankList().get(permission.getGroupID()).getPermissionList().add(permission.getName()));
+            gradeList = groupModel.getAllGrade();
+            rankList = groupModel.getAllRank();
+            groupModel.getAllGradePermission().forEach(permission -> gradeList.get(permission.getGroupID()).getPermissionList().add(permission.getName()));
+            groupModel.getAllGradePermission().forEach(permission -> rankList.get(permission.getGroupID()).getPermissionList().add(permission.getName()));
+            Bukkit.getOnlinePlayers().forEach(player -> {
+                try {
+                    playerGroupList.put(player.getUniqueId(), groupModel.getPlayerGroup(player));
+                    playerGroupList.get(player.getUniqueId()).initializePlayerPermission(true);
+                } catch (SQLException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
 
-        GroupModel groupModel;
-        for(Player player : Bukkit.getOnlinePlayers())
-        {
-            groupModel = new GroupModel(player);
-            try {
-                groupStore.getPlayerGroupList().put(player.getUniqueId(), groupModel.getPlayerGroup());
-            } catch (SQLException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
 
-        if(groupStore.getPlayerGroupList().size() > 0)
-        {
-            for(PlayerGroup playerGroup : groupStore.getPlayerGroupList().values())
-            {
-                playerGroup.initializePlayerPermission(true);
-            }
-        }
     }
 
-    public static SPGroupManager getInstance()
+    public Map<Integer, Grade> getGradeList() {
+        return gradeList;
+    }
+    public Map<Integer, Rank> getRankList() {
+        return rankList;
+    }
+    public Map<UUID, PlayerGroup> getPlayerGroupList() {
+        return playerGroupList;
+    }
+    public Grade getGradeByName(String GradeName)
     {
-        return SPGroupManager.INSTANCE;
+        int GradeID = 1;
+        Grade NewGrade = null;
+        while(GradeID <= this.gradeList.size() && NewGrade == null)
+        {
+            if(this.gradeList.get(GradeID) != null && this.gradeList.get(GradeID).getName().equalsIgnoreCase(GradeName))
+            {
+                NewGrade = this.gradeList.get(GradeID);
+            }
+            GradeID++;
+        }
+        return NewGrade;
     }
-    public GroupStore getGroupStore() {
-        return groupStore;
-    }
-    public static Connection getDatabase() throws SQLException, ClassNotFoundException {
-        return SPGroupManager.getInstance().SPDatabase.getSPDatabase().getDatabase();
+
+    public Rank getRankByName(String RankName)
+    {
+        int RankID = 1;
+        Rank newRank = null;
+        while(RankID <= this.rankList.size() && newRank == null)
+        {
+            if(this.rankList.get(RankID) != null && this.rankList.get(RankID).getName().equalsIgnoreCase(RankName))
+            {
+                newRank = this.rankList.get(RankID);
+            }
+            RankID++;
+        }
+        return newRank;
     }
 }

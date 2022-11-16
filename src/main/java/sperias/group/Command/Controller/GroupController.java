@@ -1,118 +1,85 @@
 package sperias.group.Command.Controller;
 
-import sperias.group.Controller.Controller;
-import sperias.group.Entity.Group.Rank;
-import sperias.group.Entity.Group.Grade;
 import SPGroupManager.SPGroupManager;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
-
-import java.util.Map;
+import sperias.group.Controller.Controller;
+import sperias.group.Entity.Group.Grade;
+import sperias.group.Entity.Group.Rank;
 
 public class GroupController extends Controller {
 
-    public GroupController(Player player) {
-        super(player);
+
+    public GroupController(Player player, SPGroupManager plugin) {
+        super(player, plugin);
     }
 
-    private boolean existingTarget(Player target)
+    private boolean targetExist(Player target)
     {
         if(target == null)
         {
-            this.player.sendMessage("§cCe joueur n'existe pas");
+            player.sendMessage("§cCe joueur n'existe pas");
             return false;
         }
 
         return true;
     }
 
-    public boolean existingGrade(String GradeName)
+    public boolean existingGrade(String gradeName)
     {
-        int gradeID = 1; boolean finded = false;
-        Map<Integer, Grade> GradeList = SPGroupManager.getInstance().getGroupStore().getGradeList();
-        while(gradeID <= GradeList.size() && !finded)
+        for(Grade grade : plugin.getGradeList().values())
         {
-            if(GradeList.get(gradeID) != null && GradeList.get(gradeID).getName().equalsIgnoreCase(GradeName)) finded = true;
-            gradeID++;
+            if(grade.getName().equalsIgnoreCase(gradeName)) return true;
         }
-        return finded;
+        return false;
     }
 
-    public boolean existingRank(String RankName)
+    public boolean existingRank(String rankName)
     {
-        int RankgID = 1; boolean finded = false;
-        Map<Integer, Rank> RankList = SPGroupManager.getInstance().getGroupStore().getRankList();
-        while(RankgID <= RankList.size() && !finded)
+        for(Rank rank : plugin.getRankList().values())
         {
-            if(RankList.get(RankgID) != null && RankList.get(RankgID).getName().equalsIgnoreCase(RankName)) finded = true;
-            RankgID++;
+            if(rank.getName().equalsIgnoreCase(rankName)) return true;
         }
-        return finded;
+        return false;
     }
 
     public boolean canSetGrade(String gradeName, Player target)
     {
-        if(!this.existingTarget(target)) return false;
-        if(!player.hasPermission("sperias.group.command.setgroup"))
-        {
-            this.player.sendMessage("§cTu n'as pas accès à cette commande");
-            return false;
-        }
+        if(!this.targetExist(target)) return false;
         if(!this.existingGrade(gradeName))
         {
             this.player.sendMessage("§cCe grade n'existe pas");
             return false;
         }
 
-        Grade NextGrade = SPGroupManager.getInstance().getGroupStore().getGradeByName(gradeName);
-        player.sendMessage("§a" + target.getName() + " est maintenant " + ChatColor.of(NextGrade.getColor()) + NextGrade.getName());
-        target.sendMessage("§aFélicitation, vous êtes maintenant " + ChatColor.of(NextGrade.getColor()) + NextGrade.getName());
+        Grade nextGrade = plugin.getGradeByName(gradeName);
+        player.sendMessage("§a" + target.getName() + " est maintenant " + ChatColor.of(nextGrade.getColor()) + nextGrade.getName());
+        target.sendMessage("§aFélicitation, vous êtes maintenant " + ChatColor.of(nextGrade.getColor()) + nextGrade.getName());
         return true;
     }
 
     public boolean canSetRank(String rankName, Player target)
     {
-        if(!this.existingTarget(target)) return false;
-        if(!player.hasPermission("sperias.group.command.setgroup"))
-        {
-            this.player.sendMessage("§cTu n'as pas accès à cette commande");
-            return false;
-        }
+        if(!this.targetExist(target)) return false;
         if(!this.existingRank(rankName))
         {
             this.player.sendMessage("§cCe grade n'existe pas");
             return false;
         }
 
-        Rank nextRank = SPGroupManager.getInstance().getGroupStore().getRankByName(rankName);
+        Rank nextRank = plugin.getRankByName(rankName);
         player.sendMessage("§a" + target.getName() + " est maintenant " + ChatColor.of(nextRank.getColor()) + nextRank.getName());
         target.sendMessage("§aFélicitation, vous êtes maintenant " + ChatColor.of(nextRank.getColor()) + nextRank.getName());
         return true;
     }
 
-    public boolean canUseThisStaffCommand()
-    {
-        if(!SPGroupManager.getInstance().getGroupStore().getPlayerGroupList().get(this.player.getUniqueId()).getGrade().isStaff() && !this.player.isOp())
-        {
-            player.sendMessage("§cTu n'as pas accès à cette commande");
-            return false;
-        }
-        return true;
-    }
-
     public boolean canShowGradeList()
     {
-        if(!player.hasPermission("sperias.group.command.showgroup"))
-        {
-            player.sendMessage("§cVous n'avez pas la permission");
-            return false;
-        }
-
         StringBuilder GradeList = new StringBuilder();
         GradeList.append("§aVoici la liste des grades : ");
-        for(Grade grade : SPGroupManager.getInstance().getGroupStore().getGradeList().values())
+        for(Grade grade : plugin.getGradeList().values())
         {
-            GradeList.append(ChatColor.of(grade.getColor()) + grade.getName() + " ");
+            GradeList.append(ChatColor.of(grade.getColor())).append(grade.getName()).append(" ");
         }
         player.sendMessage(GradeList.toString());
         return true;
@@ -120,17 +87,11 @@ public class GroupController extends Controller {
 
     public boolean canShowRankList()
     {
-        if(!player.hasPermission("sperias.group.command.showgroup"))
-        {
-            player.sendMessage("§cVous n'avez pas la permission");
-            return false;
-        }
-
         StringBuilder RankList = new StringBuilder();
         RankList.append("§aVoici la liste des ranks : ");
-        for(Rank aRank : SPGroupManager.getInstance().getGroupStore().getRankList().values())
+        for(Rank rank : plugin.getRankList().values())
         {
-            RankList.append(ChatColor.of(aRank.getColor()) + aRank.getName() + " ");
+            RankList.append(ChatColor.of(rank.getColor())).append(rank.getName()).append(" ");
         }
         player.sendMessage(RankList.toString());
         return true;

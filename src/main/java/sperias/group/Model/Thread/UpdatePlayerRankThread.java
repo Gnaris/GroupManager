@@ -8,9 +8,13 @@ import java.sql.SQLException;
 
 public class UpdatePlayerRankThread extends GroupModel implements Runnable {
 
-    public UpdatePlayerRankThread(Player player) {
-        super(player);
+    private Player player;
+
+    public UpdatePlayerRankThread(Player player, SPGroupManager plugin) {
+        super(plugin);
+        this.player = player;
     }
+
 
     @Override
     public void run() {

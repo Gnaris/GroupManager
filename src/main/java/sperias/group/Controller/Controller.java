@@ -2,26 +2,24 @@ package sperias.group.Controller;
 
 import SPGroupManager.SPGroupManager;
 import org.bukkit.entity.Player;
-import sperias.group.Entity.Group.Grade;
-import sperias.group.Entity.Group.Rank;
-import sperias.group.Entity.PlayerGroup;
-import sperias.group.Model.GroupModel;
 
-import java.util.Map;
-import java.util.UUID;
+public class Controller{
 
-public class Controller extends GroupModel {
+    protected SPGroupManager plugin;
+    protected Player player;
 
-    protected Map<UUID, PlayerGroup> playerGroupList;
-    protected Map<Integer, Grade> gradeList;
-    protected Map<Integer, Rank> rankList;
-
-    public Controller(Player player) {
-        super(player);
-        this.playerGroupList = SPGroupManager.getInstance().getGroupStore().getPlayerGroupList();
-        this.gradeList = SPGroupManager.getInstance().getGroupStore().getGradeList();
-        this.rankList = SPGroupManager.getInstance().getGroupStore().getRankList();
+    public Controller(Player player, SPGroupManager plugin) {
+        this.plugin = plugin;
+        this.player = player;
     }
 
-
+    public boolean havePermission(String permission)
+    {
+        if(!player.hasPermission(permission) && !player.isOp())
+        {
+            player.sendMessage("§cVous n'avez pas la permission");
+            return false;
+        }
+        return true;
+    }
 }

@@ -1,5 +1,7 @@
 package sperias.group.Model;
 
+import org.bukkit.Bukkit;
+import sperias.gnaris.SPDatabase.SPDatabase;
 import sperias.group.Entity.Group.Permission;
 import sperias.group.Entity.Group.Rank;
 import sperias.group.Entity.PlayerGroup;
@@ -17,30 +19,31 @@ import java.util.Map;
 
 public class GroupModel {
 
-    protected Player player;
+    private SPGroupManager plugin;
+    private final SPDatabase database = (SPDatabase) Bukkit.getServer().getPluginManager().getPlugin("SP_Database");
 
-    public GroupModel(Player player) {
-        this.player = player;
+    public GroupModel(SPGroupManager plugin) {
+        this.plugin = plugin;
     }
 
-    public PlayerGroup getPlayerGroup() throws SQLException, ClassNotFoundException {
-        PreparedStatement stmt = SPGroupManager.getDatabase().prepareStatement("SELECT * FROM player_group");
+    public PlayerGroup getPlayerGroup(Player player) throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = database.getConnection().prepareStatement("SELECT gradeID, rankID FROM player");
         ResultSet result = stmt.executeQuery();
         PlayerGroup PlayerGroup = null;
         while(result.next())
         {
             PlayerGroup = new PlayerGroup(
                     player,
-                    result.getInt("playerID"),
-                    SPGroupManager.getInstance().getGroupStore().getGradeList().get(result.getInt("grade")),
-                    SPGroupManager.getInstance().getGroupStore().getRankList().get(result.getInt("rank"))
+                    plugin.getGradeList().get(result.getInt("gradeID")),
+                    plugin.getRankList().get(result.getInt("rankID")),
+                    plugin
             );
         }
         return PlayerGroup;
     }
 
-    public static List<Permission> GET_ALL_GRADE_PERMISSION() throws SQLException, ClassNotFoundException {
-        PreparedStatement stmt = SPGroupManager.getDatabase().prepareStatement("SELECT gradeID, pg.name FROM permission_grade pgr JOIN permission_group pg ON pg.id = pgr.permissionID");
+    public List<Permission> getAllGradePermission() throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = database.getConnection().prepareStatement("SELECT gradeID, pg.name FROM permission_grade pgr JOIN permission_group pg ON pg.id = pgr.permissionID");
         ResultSet result = stmt.executeQuery();
         List<Permission> gradePermissionList = new ArrayList<>();
         while(result.next())
@@ -50,8 +53,8 @@ public class GroupModel {
         return gradePermissionList;
     }
 
-    public static Map<Integer, Grade> GET_ALL_GRADE() throws SQLException, ClassNotFoundException {
-        PreparedStatement stmt = SPGroupManager.getDatabase().prepareStatement("SELECT * FROM grade");
+    public Map<Integer, Grade> getAllGrade() throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = database.getConnection().prepareStatement("SELECT * FROM grade");
         ResultSet result = stmt.executeQuery();
         Map<Integer, Grade> GradeList = new HashMap<>();
         Grade grade = null;
@@ -63,8 +66,8 @@ public class GroupModel {
         return GradeList;
     }
 
-    public static List<Permission> GET_ALL_RANK_PERMISSION() throws SQLException, ClassNotFoundException {
-        PreparedStatement stmt = SPGroupManager.getDatabase().prepareStatement("SELECT rankID, pg.name FROM permission_rank pr JOIN permission_group pg ON pg.id = pr.permissionID");
+    public List<Permission> getAllRankPermission() throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = database.getConnection().prepareStatement("SELECT rankID, pg.name FROM permission_rank pr JOIN permission_group pg ON pg.id = pr.permissionID");
         ResultSet result = stmt.executeQuery();
         List<Permission> rankPermissionList = new ArrayList<>();
         while(result.next())
@@ -74,8 +77,8 @@ public class GroupModel {
         return rankPermissionList;
     }
 
-    public static Map<Integer, Rank> GET_ALL_RANK() throws SQLException, ClassNotFoundException {
-        PreparedStatement stmt = SPGroupManager.getDatabase().prepareStatement("SELECT * FROM rank");
+    public Map<Integer, Rank> getAllRank() throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = database.getConnection().prepareStatement("SELECT * FROM rank");
         ResultSet result = stmt.executeQuery();
         Map<Integer, Rank> rankList = new HashMap<>();
         Rank rank = null;
@@ -88,18 +91,16 @@ public class GroupModel {
     }
 
     public void updateGrade(Player player) throws SQLException, ClassNotFoundException {
-        PlayerGroup PlayerGroup = SPGroupManager.getInstance().getGroupStore().getPlayerGroupList().get(player.getUniqueId());
-        PreparedStatement stmt = SPGroupManager.getDatabase().prepareStatement("UPDATE player_group SET grade = ? where playerID = ?");
-            stmt.setInt(1, PlayerGroup.getGrade().getId());
-            stmt.setInt(2, PlayerGroup.getPlayerID());
+        PreparedStatement stmt = database.getConnection().prepareStatement("UPDATE player SET gradeID = ? where uuid = ?");
+            stmt.setInt(1, plugin.getPlayerGroupList().get(player.getUniqueId()).getGrade().getId());
+            stmt.setString(2, player.getUniqueId().toString());
             stmt.executeUpdate();
     }
 
     public void updateRank(Player player) throws SQLException, ClassNotFoundException {
-        PlayerGroup PlayerGroup = SPGroupManager.getInstance().getGroupStore().getPlayerGroupList().get(player.getUniqueId());
-        PreparedStatement stmt = SPGroupManager.getDatabase().prepareStatement("UPDATE player_group SET rank = ? where playerID = ?");
-        stmt.setInt(1, PlayerGroup.getRank().getId());
-        stmt.setInt(2, PlayerGroup.getPlayerID());
+        PreparedStatement stmt = database.getConnection().prepareStatement("UPDATE player SET rankID = ? where uuid = ?");
+        stmt.setInt(1, plugin.getPlayerGroupList().get(player.getUniqueId()).getRank().getId());
+        stmt.setString(2, player.getUniqueId().toString());
         stmt.executeUpdate();
     }
 }
