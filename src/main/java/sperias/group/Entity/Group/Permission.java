@@ -2,19 +2,19 @@ package sperias.group.Entity.Group;
 
 public class Permission {
 
-    private int groupID;
-    private String name;
+    private final String groupName;
+    private final String permissionName;
 
-    public Permission(int groupID, String name) {
-        this.groupID = groupID;
-        this.name = name;
+    public Permission(String groupName, String permissionName) {
+        this.groupName = groupName;
+        this.permissionName = permissionName;
     }
 
-    public int getGroupID() {
-        return groupID;
+    public String getGroupName() {
+        return groupName;
     }
 
-    public String getName() {
-        return name;
+    public String getPermissionName() {
+        return permissionName;
     }
 }

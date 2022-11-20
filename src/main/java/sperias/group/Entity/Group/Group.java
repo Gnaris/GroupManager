@@ -1,5 +1,7 @@
 package sperias.group.Entity.Group;
 
+import net.md_5.bungee.api.ChatColor;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +36,7 @@ public abstract class Group {
         return PermissionList;
     }
 
-    public String getColor() {
-        return color;
+    public ChatColor getColor() {
+        return ChatColor.of(this.color);
     }
 }

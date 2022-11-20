@@ -1,19 +1,33 @@
 package sperias.group.Controller;
 
-import SPGroupManager.SPGroupManager;
+import sperias.group.GroupManager.GroupManager;
 import org.bukkit.entity.Player;
+import sperias.group.Model.GroupModel;
 
 public class Controller{
 
-    protected SPGroupManager plugin;
+    protected GroupManager plugin;
     protected Player player;
 
-    public Controller(Player player, SPGroupManager plugin) {
+    protected GroupModel groupModel;
+
+    public Controller(Player player, GroupManager plugin) {
         this.plugin = plugin;
         this.player = player;
+        this.groupModel = new GroupModel(plugin);
     }
 
-    public boolean havePermission(String permission)
+    protected boolean targetExist(Player target)
+    {
+        if(target == null)
+        {
+            player.sendMessage("§cCe joueur n'existe pas");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean hasPermission(String permission)
     {
         if(!player.hasPermission(permission) && !player.isOp())
         {
