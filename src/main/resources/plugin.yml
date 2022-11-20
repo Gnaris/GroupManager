@@ -1,11 +1,11 @@
-name: SP_GroupManager
+name: GroupManager
 version: '1'
-main: SPGroupManager.SPGroupManager
+main: GroupManager.GroupManager
 api-version: 1.19
 authors: [ Gnaris ]
 depend: [SP_Database]
 commands:
-  spgroup:
+  group:
 permissions:
-  sperias.group.command.spgroup:
+  sperias.group.command.group:
     description: "Manage group"

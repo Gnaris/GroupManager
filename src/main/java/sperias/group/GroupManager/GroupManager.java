@@ -25,6 +25,8 @@ public final class GroupManager extends JavaPlugin {
     @Override
     public void onEnable() {
 
+        // TODO COMMANDE RANKUP A FAIRE
+
         Objects.requireNonNull(getCommand("group")).setExecutor(new Cmd_Group(this));
 
         getServer().getPluginManager().registerEvents(new E_GroupManager(this), this);
