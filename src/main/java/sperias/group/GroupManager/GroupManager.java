@@ -5,7 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import sperias.group.Command.Cmd_Group;
 import sperias.group.Entity.Group.Grade;
 import sperias.group.Entity.Group.Rank;
-import sperias.group.Entity.PlayerGroup;
+import sperias.group.Entity.Group.PlayerGroup;
 import sperias.group.Event.E_GroupManager;
 import sperias.group.Model.GroupModel;
 
@@ -28,6 +28,7 @@ public final class GroupManager extends JavaPlugin {
         // TODO COMMANDE RANKUP A FAIRE
 
         Objects.requireNonNull(getCommand("group")).setExecutor(new Cmd_Group(this));
+        Objects.requireNonNull(getCommand("rankup")).setExecutor(new Cmd_Group(this));
 
         getServer().getPluginManager().registerEvents(new E_GroupManager(this), this);
 

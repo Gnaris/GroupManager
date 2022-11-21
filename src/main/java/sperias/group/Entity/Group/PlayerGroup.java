@@ -1,4 +1,4 @@
-package sperias.group.Entity;
+package sperias.group.Entity.Group;
 
 import org.bukkit.entity.Player;
 import sperias.group.Entity.Group.Rank;

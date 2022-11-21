@@ -1,12 +1,13 @@
 package sperias.group.Model;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import sperias.gnaris.SPDatabase.SPDatabase;
 import sperias.group.Entity.Group.Grade;
 import sperias.group.Entity.Group.Permission;
 import sperias.group.Entity.Group.Rank;
-import sperias.group.Entity.PlayerGroup;
+import sperias.group.Entity.Group.PlayerGroup;
 import sperias.group.GroupManager.GroupManager;
 
 import java.sql.PreparedStatement;
@@ -67,6 +68,8 @@ public class GroupModel {
                     result.getString("name"),
                     result.getString("prefixM"),
                     result.getString("prefixF"),
+                    Material.getMaterial(result.getString("material")) == null ? Material.WHITE_STAINED_GLASS : Material.getMaterial(result.getString("material")),
+                    result.getString("description"),
                     result.getString("color"),
                     result.getInt("price"),
                     result.getBoolean("isPrenium"),
